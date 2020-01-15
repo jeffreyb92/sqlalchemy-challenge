@@ -111,7 +111,7 @@ def temps():
 if __name__ == '__main__':
     app.run(debug=True)
 
-@app.route("api/v1.0/<int:start>")
+@app.route("/api/v1.0/<int:start>")
 def start_date(start):
 
      # Create our session (link) from Python to the DB
@@ -138,7 +138,7 @@ def start_date(start):
 
     return jsonify(start_temps)
 
-@app.route("api/v1.0/<int:start>/<int:end>")
+@app.route("/api/v1.0/<int:start>/<int:end>")
 def startend(start, end):
      # Create our session (link) from Python to the DB
     session = Session(engine)
