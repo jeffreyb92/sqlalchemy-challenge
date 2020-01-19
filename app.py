@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 
 from flask import Flask, jsonify
+import pandas as pd
 
 
 #################################################
@@ -108,50 +109,41 @@ def temps():
     return jsonify(all_temps)   
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-@app.route("/api/v1.0/<int:start>")
+@app.route("/api/v1.0/<start>")
 def start_date(start):
 
      # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    start_string= str(start)
-    start_num = str(start_string[:4]) + "-"  + str(start_string[4:6]) + "-" + str(start_string[6:])
+    # start_string= str(start)
+    # start_num1 = str(start_string[:4]) + "-"  + str(start_string[4:6]) + "-" + str(start_string[6:])
+    # start_num = pd.to_date(start_num1)
 
     """Return a list of temperatures from the last year"""
     # Query all temperatures from start date
-    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start_num).all()
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).all()
 
     session.close()
 
-
-    # Create a dictionary from the row data and append to a list of start_temps
+    # Create a dictionary from the row data and append to a list of start_temps 
     start_temps = []
     for mini, avg, maxi in results:
-        temps_dict = {}
-        temps_dict["min"] = mini
-        temps_dict["avg"] = avg
-        temps_dict["max"] = maxi
-        start_temps.append(temps_dict)
+        start_dict = {}
+        start_dict["min"] = mini
+        start_dict["avg"] = avg
+        start_dict["max"] = maxi
+        start_temps.append(start_dict)
 
     return jsonify(start_temps)
 
-@app.route("/api/v1.0/<int:start>/<int:end>")
+@app.route("/api/v1.0/<start>/<end>")
 def startend(start, end):
      # Create our session (link) from Python to the DB
     session = Session(engine)
 
-    start_string= str(start)
-    start_date = str(start_string[:4]) + "-"  + str(start_string[4:6]) + "-" + str(start_string[6:])
-
-    end_string= str(end)
-    end_date = str(end_string[:4]) + "-"  + str(end_string[4:6]) + "-" + str(end_string[6:])
-
     """Return a list of temperatures from the last year"""
     # Query all temperatures from start to end date
-    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
 
     session.close()
 
@@ -165,3 +157,6 @@ def startend(start, end):
         end_temps.append(temps_dict)
 
     return jsonify(end_temps)
+    
+if __name__ == '__main__':
+    app.run(debug=True)
